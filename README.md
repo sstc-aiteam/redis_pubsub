@@ -32,7 +32,7 @@ requirements.txt
 1. Start a Redis server:
 
    ```bash
-   docker run -d --name redis -p 6379:6379 redis
+   docker run -d --name redis -p 6379:6379 redis:7-alpine
    ```
 
 2. Install dependencies:
