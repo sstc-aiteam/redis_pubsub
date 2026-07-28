@@ -29,7 +29,7 @@ requirements.txt
 
 ## Quick start
 
-1. Start a Redis server:
+1. Start a Redis server:  
    keep the IP address and specify in the `RedisConfig.host`
 
    ```bash
