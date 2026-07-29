@@ -1,8 +1,11 @@
 import base64
 import json
+import logging
 
 from .client import RedisClientBase
 from .config import RedisConfig
+
+logger = logging.getLogger(__name__)
 
 
 class Subscriber(RedisClientBase):
@@ -26,8 +29,17 @@ class Subscriber(RedisClientBase):
 
     def start(self, sleep_time: float = 0.01):
         """Runs callbacks in a background thread."""
-        self._thread = self.pubsub.run_in_thread(sleep_time=sleep_time)
+        self._thread = self.pubsub.run_in_thread(
+            sleep_time=sleep_time, exception_handler=self._handle_exception
+        )
         return self._thread
+
+    def _handle_exception(self, exception, pubsub, thread):
+        # Swallowing keeps the worker thread's loop alive so redis-py can
+        # reconnect and resubscribe on the next get_message() call, instead
+        # of the thread dying silently on things like a server-side
+        # client-output-buffer-limit disconnect.
+        logger.warning("Subscriber error: %r", exception)
 
     def stop(self):
         if self._thread is not None:
